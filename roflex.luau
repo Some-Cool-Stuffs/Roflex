@@ -55,6 +55,20 @@ roflex.add = function(parent: Instance, name: string, class: string, properties:
                 newInstance.MouseButton1Click:Connect(properties["Callback"])
             end
 
+            if class == "TextBox" then
+                if properties["Callback"] then
+                    newInstance.FocusLost:Connect(function(released)
+                        if released then
+                            properties["Callback"]()
+                        end
+                    end)
+                end
+
+                if properties["Focused"] then
+                    newInstance.Focused:Connect(properties["Focused"])
+                end
+            end
+
             for key, value in properties do
                 if key ~= "Callback" then
                     newInstance[key] = value
