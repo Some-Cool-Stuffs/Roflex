@@ -2,7 +2,7 @@
 
 -- Variables --
 
-local roflex, uis = {}, {}
+local roflex = {}
 
 
 -- Local functions --
@@ -46,14 +46,13 @@ end
 
 roflex.add = function(parent: Instance, name: string, class: string, properties: table)
     if running() then
-        local callback = properties["Callback"]
         local newInstance = Instance.new(class, parent) do
             newInstance.Name = name
         end
 
         if properties then
-            if class == "TextButton" or class == "ImageButton" and callback then
-                newInstance.MouseButton1Click:Connect(callback)
+            if class == "TextButton" or class == "ImageButton" and properties["Callback"] then
+                newInstance.MouseButton1Click:Connect(properties["Callback"])
             end
 
             for key, value in properties do
