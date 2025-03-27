@@ -7,11 +7,8 @@ Very easy and practical for **small and simplistic UIs** that you're too lazy to
 
 > This was originally **designed and created** in Roblox using exploits, it's **100% portable** to Roblox Studio and capable for true game development. 🔗
 
-## Features 🤑
-1. Parenting to other Roflex-created interfaces.
-2. Actual proper property assignment.
-3. Uses a simple and very easy to learn codebase and design.
-4. Button callback support
+## Real Project samples 🔍
+1. **[Silicone](https://github.com/Some-Cool-Stuffs/Roflex/blob/main/Large%20Examples/Silicone.luau)** - Basic Admin Commands project fulfilled w/ a **modern** & **beautiful** interface. ✨
 
 ## Code examples 🤓
 ```lua
