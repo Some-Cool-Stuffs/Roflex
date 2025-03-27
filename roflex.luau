@@ -63,10 +63,6 @@ roflex.add = function(parent: Instance, name: string, class: string, properties:
                         end
                     end)
                 end
-
-                if properties["Focused"] then
-                    newInstance.Focused:Connect(properties["Focused"])
-                end
             end
 
             for key, value in properties do
