@@ -69,4 +69,8 @@ roflex.add = function(parent: Instance, name: string, class: string, properties:
     end
 end
 
+roflex.remove = function(instance: Instance, delay: number)
+    delete(instance, delay)
+end
+
 return roflex
