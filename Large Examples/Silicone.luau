@@ -2,8 +2,8 @@
 
   ! Version 1.0 !
 
-  Beautiful & modern notification library made using Roflex!
-  Finished on March 28th, 2025.
+  > This just includes the notification system. In the future, I plan to write more for this little script.
+  > Just a fun little project, so don't expect it to update too quickly!
 
 ]]
 
@@ -11,6 +11,7 @@
 
 local Players = game:GetService("Players")
 local Tween = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
 
 
 -- Imports
@@ -18,22 +19,16 @@ local Tween = game:GetService("TweenService")
 local roflex = loadstring(game:HttpGet("https://github.com/Some-Cool-Stuffs/Roflex/blob/main/roflex.luau?raw=true"))()
 if not roflex_ran then
     roflex.launch()
-elseif roflex_launching then
-    return
 end
 
 
 -- Variables
-
-getgenv().roflex_launching = true
 
 local localPlayer = Players.LocalPlayer
 local playerGui = localPlayer.PlayerGui
 
 local liveNotifs = 0
 local launchTime = tick()
-
-local library = {}
 
 local project, build = "Silicone", "final"
 
@@ -98,33 +93,41 @@ local function applyDropshadow(parent: Instance, shadowSize: number)
     end
 end
 
-library.notify = function(text: string, emoji: string, duration: number)
+
+-- Interface
+
+for _, ui in playerGui:GetChildren() do
+    if ui:IsA("ScreenGui") and ui.Name == `{project}-{build}` then
+        roflex.remove(ui, 0)
+    end
+end
+
+local screenGui = roflex.add(playerGui, `{project}-{build}`, "ScreenGui", {
+    ResetOnSpawn = false
+})
+
+local backbone = roflex.add(screenGui, "backbone", "Frame", {
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    Position = UDim2.fromScale(0.5, 0.5),
+    Size = UDim2.fromScale(0.9, 0.9),
+    BackgroundTransparency = 1,
+})
+
+roflex.add(backbone, "notifies", "Folder")
+
+
+-- Library functions
+
+local function notify(text: string, emoji: string, duration: number)
     if not duration then
         duration = 3
     end
 
-    for _, ui in playerGui:GetChildren() do
-        if ui:IsA("ScreenGui") and ui.Name == `{project}-{build}` then
-            roflex.remove(ui, 0)
-        end
-    end
-
-    local screenGui = roflex.add(playerGui, `{project}-{build}`, "ScreenGui", {
-        ResetOnSpawn = false
-    })
-
-    local backbone = roflex.add(screenGui, "backbone", "Frame", {
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        Position = UDim2.fromScale(0.5, 0.5),
-        Size = UDim2.fromScale(0.9, 0.9),
-        BackgroundTransparency = 1,
-    })
-
-    roflex.add(backbone, "notifies", "Folder")
-
-    if isInstance(screenGui) then
+    if isInstance(backbone) then
         local folder = backbone:FindFirstChild("notifies")
         if folder then
+            liveNotifs += 1
+
             local background = roflex.add(folder, `_{liveNotifs + 1}`, "Frame", {
                 AnchorPoint = Vector2.new(0.5, 0),
                 BackgroundTransparency = 0.2,
@@ -156,20 +159,14 @@ library.notify = function(text: string, emoji: string, duration: number)
                 tween(background, {Position = UDim2.new(0.5, 0, 0, -180)}, 0.35)
                 tween(background, {Size = UDim2.fromOffset(0, 30)}, 0)
 
-                task.wait(0.4)
-
                 liveNotifs -= 1
             end)
 
             roflex.remove(background, duration + 1)
-
-            liveNotifs += 1
         end
     end
-
-    task.delay(0.4, function()
-        getgenv().roflex_launching = false
-    end)
 end
 
-return library
+return {
+    notify = notify
+}
