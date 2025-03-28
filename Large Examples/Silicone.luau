@@ -11,7 +11,6 @@
 
 local Players = game:GetService("Players")
 local Tween = game:GetService("TweenService")
-local Lighting = game:GetService("Lighting")
 
 
 -- Imports
