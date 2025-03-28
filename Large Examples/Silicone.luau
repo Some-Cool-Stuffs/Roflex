@@ -2,8 +2,8 @@
 
   ! Version 1.0 !
 
-  > This just includes the notification system. In the future, I plan to write more for this little script.
-  > Just a fun little project, so don't expect it to update too quickly!
+  Beautiful & modern notification library made using Roflex!
+  Finished on March 28th, 2025.
 
 ]]
 
@@ -11,7 +11,6 @@
 
 local Players = game:GetService("Players")
 local Tween = game:GetService("TweenService")
-local Lighting = game:GetService("Lighting")
 
 
 -- Imports
@@ -28,25 +27,15 @@ end
 
 getgenv().roflex_launching = true
 
-roflex.add(Lighting, "roflex-blur", "BlurEffect", {Size = 0})
-
 local localPlayer = Players.LocalPlayer
 local playerGui = localPlayer.PlayerGui
 
 local liveNotifs = 0
 local launchTime = tick()
 
-local project, prefix, build = "Silicone", ":", "final"
-local commands = {
-    {
-        name = "help",
-        description = "Opens a menu showing you all commands"
-    },
-    {
-        name = "version",
-        description = `Delivers the running version of {project}`
-    }
-}
+local library = {}
+
+local project, build = "Silicone", "final"
 
 
 -- Local functions
@@ -62,28 +51,6 @@ local function tween(instance: Instance, replay: UDim2, duration: number)
 
         animation:Play()
     end
-end
-
-local function fetchHour()
-    local hour, minute = os.date("%I:%M %p", os.time()):match("(%d+):(%d+)")
-    hour = tonumber(hour)
-
-    return {hour = hour, minute = minute}
-end
-
-local function fetchTime()
-    local time = fetchHour()
-    if time.hour > 12 then
-        time.hour -= 12
-    elseif time.hour == 0 then
-        time.hour = 12
-    end
-
-    return string.format("%d:%s", time.hour, time.minute)
-end
-
-local function fetchCycle()
-    return fetchHour().hour >= 12 and "PM" or "AM"
 end
 
 local function applyDropshadow(parent: Instance, shadowSize: number)
@@ -131,13 +98,32 @@ local function applyDropshadow(parent: Instance, shadowSize: number)
     end
 end
 
-local function notify(parent: Instance, text: string, emoji: string, duration: number)
+library.notify = function(text: string, emoji: string, duration: number)
     if not duration then
         duration = 3
     end
 
-    if isInstance(parent) then
-        local folder = parent:FindFirstChild("notifies")
+    for _, ui in playerGui:GetChildren() do
+        if ui:IsA("ScreenGui") and ui.Name == `{project}-{build}` then
+            roflex.remove(ui, 0)
+        end
+    end
+
+    local screenGui = roflex.add(playerGui, `{project}-{build}`, "ScreenGui", {
+        ResetOnSpawn = false
+    })
+
+    local backbone = roflex.add(screenGui, "backbone", "Frame", {
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.fromScale(0.5, 0.5),
+        Size = UDim2.fromScale(0.9, 0.9),
+        BackgroundTransparency = 1,
+    })
+
+    roflex.add(backbone, "notifies", "Folder")
+
+    if isInstance(screenGui) then
+        local folder = backbone:FindFirstChild("notifies")
         if folder then
             local background = roflex.add(folder, `_{liveNotifs + 1}`, "Frame", {
                 AnchorPoint = Vector2.new(0.5, 0),
@@ -169,6 +155,10 @@ local function notify(parent: Instance, text: string, emoji: string, duration: n
             task.delay(duration, function()
                 tween(background, {Position = UDim2.new(0.5, 0, 0, -180)}, 0.35)
                 tween(background, {Size = UDim2.fromOffset(0, 30)}, 0)
+
+                task.wait(0.4)
+
+                liveNotifs -= 1
             end)
 
             roflex.remove(background, duration + 1)
@@ -176,51 +166,10 @@ local function notify(parent: Instance, text: string, emoji: string, duration: n
             liveNotifs += 1
         end
     end
+
+    task.delay(0.4, function()
+        getgenv().roflex_launching = false
+    end)
 end
 
-
--- Interface logic
-
-tween(Lighting:FindFirstChild("roflex-blur"), {Size = 10}, 0.5)
-
-for _, ui in playerGui:GetChildren() do
-    if ui:IsA("ScreenGui") and ui.Name == `{project}-{build}` then
-        roflex.remove(ui, 0)
-    end
-end
-
-local screenGui = roflex.add(playerGui, `{project}-{build}`, "ScreenGui", {
-    ResetOnSpawn = false
-})
-
-local backbone = roflex.add(screenGui, "backbone", "Frame", {
-    AnchorPoint = Vector2.new(0.5, 0.5),
-    Position = UDim2.fromScale(0.5, 0.5),
-    Size = UDim2.fromScale(0.9, 0.9),
-    BackgroundTransparency = 1,
-})
-
-roflex.add(backbone, "notifies", "Folder")
-
-if fetchCycle() == "AM" then
-    if fetchHour().hour >= 6 and fetchHour().hour < 12 then
-        notify(backbone, `Good morning, <b>{localPlayer.DisplayName}</b>! Currently, it's <b>{fetchTime()}</b> in the morning!`, "⭐", 4)
-    elseif fetchHour().hour < 6 then
-        notify(backbone, `Sweet dreams, <b>{localPlayer.DisplayName}</b>. It's now <b>{fetchTime()}</b> at night.`, "💤", 4)
-    end
-else
-    notify(backbone, `Good evening, <b>{localPlayer.DisplayName}</b>! Currently, it's <b>{fetchHour().hour}</b> O' clock.`, "✨", 4)
-end
-
-task.wait(0.5)
-
-notify(backbone, string.format("<b><i>%s</i></b>  launched in ~<b>%.2f</b> seconds. Enjoy!", project, tick() - launchTime), "✏️", 3)
-
-task.wait(3.8)
-
-tween(Lighting:FindFirstChild("roflex-blur"), {Size = 0}, 0.35)
-task.delay(0.4, function()
-    roflex.remove(Lighting:FindFirstChild("roflex-blur"), 0)
-
-    getgenv().roflex_launching = false
-end)
+return library
