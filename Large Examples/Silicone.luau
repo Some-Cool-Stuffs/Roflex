@@ -11,6 +11,7 @@
 
 local Players = game:GetService("Players")
 local Tween = game:GetService("TweenService")
+local Core = game:GetService("CoreGui")
 
 
 -- Imports
@@ -95,13 +96,13 @@ end
 
 -- Interface
 
-for _, ui in playerGui:GetChildren() do
+for _, ui in Core:GetChildren() do
     if ui:IsA("ScreenGui") and ui.Name == `{project}-{build}` then
         roflex.remove(ui, 0)
     end
 end
 
-local screenGui = roflex.add(playerGui, `{project}-{build}`, "ScreenGui", {
+local screenGui = roflex.add(Core, `{project}-{build}`, "ScreenGui", {
     ResetOnSpawn = false
 })
 
